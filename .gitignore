@@ -10,3 +10,4 @@ data/augmentation/
 
 # others
 test.ipynb
+test*.png
