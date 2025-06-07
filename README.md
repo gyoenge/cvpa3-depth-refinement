@@ -16,7 +16,7 @@ pip install torch numpy matplotlib tqdm
 run baseline method 
 
 ```
-python baselines.py
+python baseline.py
 ```
 
 ---
