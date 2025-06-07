@@ -6,3 +6,7 @@ venv/
 # large data
 output/
 archive/
+data/augmentation/
+
+# others
+test.ipynb

@@ -8,10 +8,16 @@ note that torch version should be matched with cuda
 ```
 python -m venv venv
 source venv/bin/activate
-pip install torch numpy matplotlib tqdm
+pip install torch numpy matplotlib tqdm  # (optional) ipykernel 
 ```
 
 ### run 
+
+run data augmentation 
+
+```
+python augmentation.py
+```
 
 run baseline method 
 
