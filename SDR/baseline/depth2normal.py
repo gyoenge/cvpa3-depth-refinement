@@ -41,7 +41,8 @@ class Depth2Normal(nn.Module):
 
         # Backproject to 3D
         pix_coords_flat = pix_coords.view(B, 3, -1)                    # (B, 3, H*W)
-        cam_coords = torch.bmm(self.K_inv, pix_coords_flat)                # (B, 3, H*W)
+        K_inv = self.K_inv.repeat(B, 1, 1)
+        cam_coords = torch.bmm(K_inv, pix_coords_flat)                # (B, 3, H*W)
         cam_coords = cam_coords.view(B, 3, H, W) * (-depth)           # (B, 3, H, W)
         point_map = cam_coords 
 
