@@ -24,8 +24,8 @@ def save_depth_image(depth_np: np.ndarray, save_path: str):
     """
     plt.figure()
     plt.axis('off')
-    plt.imshow(depth_np, cmap='jet')
-    plt.colorbar()
+    im = plt.imshow(depth_np, cmap='jet')
+    plt.colorbar(im, shrink=0.6)
     plt.tight_layout()
     plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
     plt.close()

@@ -55,7 +55,9 @@ def baseline():
     )
     print("End hole filling...")
 
-
+    depth_initial_path = os.path.join(SAVE_DIR, "depth_initial.png")
+    save_depth_image(initial_depth, depth_initial_path)
+    print(f"Initial depth saved to {depth_initial_path}")
 
     # model : rgbd to normal [step 2,3]  
     # torch.Tensor(B,4,H,W) 
@@ -98,7 +100,7 @@ def baseline():
         weight_decay=WEIGHT_DECAY
     )
 
-    gt_depth_torch = torch.from_numpy(gt_depth).unsqueeze(0).unsqueeze(0).float() # (1,1,H,W)
+    gt_depth_torch = torch.from_numpy(sparse_depth).unsqueeze(0).unsqueeze(0).float() # (1,1,H,W)
     gt_depth_torch = gt_depth_torch.to(device)
     gt_normal_torch = torch.from_numpy(gt_normal).permute(2, 0, 1).unsqueeze(0).float() # (1,3,H,W)
     gt_normal_torch = gt_normal_torch.to(device)
@@ -106,6 +108,7 @@ def baseline():
     log_file_path = os.path.join(SAVE_DIR, 'log.txt')
     logging.basicConfig(
         filename=log_file_path,
+        filemode='w', 
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
