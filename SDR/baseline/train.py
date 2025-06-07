@@ -33,7 +33,7 @@ def train(
     logging.getLogger('').addHandler(console)
     logging.info(f"[Hyperparameters] holefilling_iter={holefilling_iter}, holefilling_kernel_size={holefilling_kernel_size}, "
                  f"batch_size={batch_size}, epoch={epoch}, learning_rate={learning_rate}, weight_decay={weight_decay}, "
-                 f"alpha={alpha}, beta={beta}, ")
+                 f"alpha={alpha}, beta={beta}")
 
     # device setting 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -63,10 +63,11 @@ def train(
     for epoch in range(1,epoch+1):
         model.train()
         
-        epoch_loss_initial = 0.0
         epoch_loss_sparse = 0.0
         epoch_loss_normal = 0.0
         epoch_loss_total = 0.0
+        epoch_mse_initial = 0.0
+        epoch_mse_depth = 0.0
         num_batches = 0
         for batch in dataloader:
             rgb = batch['rgb'].to(device)              # (B, 3, H, W)
@@ -80,7 +81,6 @@ def train(
             )
 
             mask_sparse = (sparse > 0).float()  # (B, 1, H, W)
-            loss_initial = F.mse_loss(initial_depth * mask_sparse, sparse, reduction='sum') / (mask_sparse.sum() + 1e-8)
             loss_sparse = F.mse_loss(depth * mask_sparse, sparse, reduction='sum') / (mask_sparse.sum() + 1e-8)  # or F.l1_loss(..)
             loss_normal = F.l1_loss(normals, normal)  # or F.mse_loss(..)
             loss = alpha * loss_sparse + beta * loss_normal
@@ -89,10 +89,14 @@ def train(
             loss.backward()
             optimizer.step()
 
-            epoch_loss_initial += loss_initial.item()
+            mse_initial = F.mse_loss(initial_depth, gt, reduction='mean')
+            mse_depth = F.mse_loss(depth, gt, reduction='mean')
+
             epoch_loss_sparse += loss_sparse.item()
             epoch_loss_normal += loss_normal.item()
             epoch_loss_total += loss.item()
+            epoch_mse_initial += mse_initial.item()
+            epoch_mse_depth += mse_depth.item()
             num_batches += 1
 
         logging.info(
@@ -100,10 +104,11 @@ def train(
             f"Loss Sparse: {epoch_loss_sparse / num_batches:.4f}, "
             f"Loss Normal: {epoch_loss_normal / num_batches:.4f}, "
             f"Total Loss: {epoch_loss_total / num_batches:.4f}"
-        )
-        logging.info(
-            f"RMSE Initial: {math.sqrt(epoch_loss_initial / num_batches):.4f}, "
-            f"RMSE Sparse: {math.sqrt(epoch_loss_sparse / num_batches):.4f}"
+        # )
+        # logging.info(
+            ", "
+            f"RMSE Initial: {math.sqrt(epoch_mse_initial / num_batches):.4f}, "
+            f"RMSE Depth: {math.sqrt(epoch_mse_depth / num_batches):.4f}"
         )
 
     # save results
