@@ -6,12 +6,12 @@ from SDR.baseline.depth2normal import Depth2Normal
 
 class Baseline(nn.Module):
     def __init__(self,
-        kernel_size=(7,7),
+        holefilling_kernel_size=(7,7),
         holefilling_iter=50,   
     ):
         super().__init__()
         self.holefiller = HoleFiller(
-            kernel_size=kernel_size, 
+            kernel_size=holefilling_kernel_size, 
             iter=holefilling_iter
         )
         self.rgbd2depth = UNet(
@@ -41,5 +41,5 @@ class Baseline(nn.Module):
         # Depth to Normal 
         point_map, normals = self.depth2normal(depth) # (B, 3, H, W), (B, 3, H, W)
         
-        return depth, normals # (B, 1, H, W), (B, 3, H, W)
+        return initial_depth, depth, normals # (B, 1, H, W), (B, 3, H, W)
     
