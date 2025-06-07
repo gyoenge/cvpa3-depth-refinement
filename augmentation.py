@@ -2,7 +2,7 @@ import os
 import shutil
 import numpy as np
 from tqdm import tqdm
-from PIL import Image, ImageOps
+from PIL import Image
 import matplotlib.pyplot as plt
 import random
 from SDR.utils import *
@@ -10,7 +10,7 @@ from SDR.utils import *
 
 def augmentation(
     ### config
-    SOURCE_DIR = './data/train/',
+    SOURCE_DIR = './data/original/train/',
     DEST_DIR = './data/augmentation/',
     AUG_COUNT = 1000,
     CROP_SCALE = 0.4,
