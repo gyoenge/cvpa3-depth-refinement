@@ -5,6 +5,7 @@ import torch
 import torch.nn.functional as F
 from SDR.dataset import load_dataset
 from SDR.baseline.model import Baseline
+from SDR.utils import *
 
 def train(
     data_dir='./data/augmentation/',
@@ -112,4 +113,18 @@ def train(
         )
 
     # save results
-    # (TBD)
+    # reuse last batch 
+    depth_initial_np = initial_depth.squeeze(0).squeeze(0).cpu().numpy()    # (H, W)
+    depth_pred_np = depth.squeeze(0).squeeze(0).cpu().numpy()    # (H, W)
+    normal_pred_np = normal.squeeze(0).permute(1, 2, 0).cpu().numpy()  # (H, W, 3)
+    # vis results 
+    save_depth_image(depth_initial_np, os.path.join(save_dir, "depth_initial.png"))
+    save_depth_image(depth_pred_np, os.path.join(save_dir, "depth_pred.png"))
+    save_normal_image(normal_pred_np, os.path.join(save_dir, "normal_pred.png"))
+    # npy, pth 
+    np.save(os.path.join(save_dir, "depth_initial.npy"), depth_initial_np)
+    np.save(os.path.join(save_dir, "depth_pred.npy"), depth_pred_np)
+    torch.save(model.state_dict(), os.path.join(save_dir, f"weight.pth"))
+    # log 
+    logging.info(f"[END] All results saved into {save_dir}")
+
