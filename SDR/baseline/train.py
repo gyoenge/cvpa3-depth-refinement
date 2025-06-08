@@ -13,7 +13,7 @@ def train(
     holefilling_kernel_size=(7,7),
     holefilling_iter=50, 
     batch_size=8,
-    epoch=1000,
+    epoch=1000, 
     learning_rate=1e-4,
     weight_decay=1e-1,
     alpha=1.0,
@@ -113,18 +113,24 @@ def train(
         )
 
     # save results
-    # reuse last batch 
-    depth_initial_np = initial_depth.squeeze(0).squeeze(0).cpu().numpy()    # (H, W)
-    depth_pred_np = depth.squeeze(0).squeeze(0).cpu().numpy()    # (H, W)
-    normal_pred_np = normal.squeeze(0).permute(1, 2, 0).cpu().numpy()  # (H, W, 3)
-    # vis results 
-    save_depth_image(depth_initial_np, os.path.join(save_dir, "depth_initial.png"))
-    save_depth_image(depth_pred_np, os.path.join(save_dir, "depth_pred.png"))
-    save_normal_image(normal_pred_np, os.path.join(save_dir, "normal_pred.png"))
-    # npy, pth 
-    np.save(os.path.join(save_dir, "depth_initial.npy"), depth_initial_np)
-    np.save(os.path.join(save_dir, "depth_pred.npy"), depth_pred_np)
-    torch.save(model.state_dict(), os.path.join(save_dir, f"weight.pth"))
-    # log 
+    with torch.no_grad():
+        # reuse last batch 
+        depth_initial_np = initial_depth[0].squeeze(0).squeeze(0).cpu().numpy()    # (H, W)
+        depth_pred_np = depth[0].squeeze(0).squeeze(0).cpu().numpy()    # (H, W)
+        depth_gt_np = gt[0].squeeze(0).squeeze(0).cpu().numpy()  # (H, W)
+        depth_sparse_np = sparse[0].squeeze(0).squeeze(0).cpu().numpy()  # (H, W)
+        normal_pred_np = normals[0].squeeze(0).permute(1, 2, 0).cpu().numpy()  # (H, W, 3)
+        normal_gt_np = normal[0].squeeze(0).permute(1, 2, 0).cpu().numpy()  # (H, W, 3)
+        # vis results 
+        save_depth_image(depth_initial_np, os.path.join(save_dir, "depth_initial.png"))
+        save_depth_image(depth_pred_np, os.path.join(save_dir, "depth_pred.png"))
+        save_depth_image(depth_gt_np, os.path.join(save_dir, "depth_gt.png"))
+        save_depth_image(depth_sparse_np, os.path.join(save_dir, "depth_sparse.png"))
+        save_normal_image(normal_pred_np, os.path.join(save_dir, "normal_pred.png"))
+        save_normal_image(normal_gt_np, os.path.join(save_dir, "normal_gt.png"))
+        # npy, pth 
+        np.save(os.path.join(save_dir, "depth_initial.npy"), depth_initial_np)
+        np.save(os.path.join(save_dir, "depth_pred.npy"), depth_pred_np)
+        torch.save(model.state_dict(), os.path.join(save_dir, f"weight.pth")) 
     logging.info(f"[END] All results saved into {save_dir}")
 
