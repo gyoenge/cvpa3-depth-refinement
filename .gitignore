@@ -10,7 +10,7 @@ data/augmentation/
 data/aug*/
 # excluded data
 data/model/ 
-data/orisample/
+data/ori_*/
 
 # others
 test.ipynb
