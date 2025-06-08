@@ -7,6 +7,10 @@ venv/
 output/
 archive/
 data/augmentation/
+data/aug*/
+# excluded data
+data/model/ 
+data/orisample/
 
 # others
 test.ipynb
