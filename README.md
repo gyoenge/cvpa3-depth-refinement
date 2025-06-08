@@ -19,10 +19,10 @@ run data augmentation
 python augmentation.py
 ```
 
-run baseline method 
+run to train and evaluate 
 
 ```
-python baseline.py
+python main.py
 ```
 
 ---
