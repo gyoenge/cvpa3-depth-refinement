@@ -8,6 +8,7 @@ output/
 archive/
 data/augmentation/
 data/aug*/
+result/
 # excluded data
 data/model/ 
 data/ori_*/
