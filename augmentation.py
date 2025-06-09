@@ -11,10 +11,10 @@ from SDR.utils import *
 def augmentation(
     ### config
     SOURCE_DIR = './data/original/train/',
-    DEST_DIR = './data/augmentation/',
+    DEST_DIR = './data/aug0.002/', #'./data/augmentation/',
     AUG_COUNT = 1000,
     CROP_SCALE = 0.4,
-    SPARSE_RATE = 0.2,
+    SPARSE_RATE = 0.002,
 ):
     """
     Data Augmentaion : Augment single train sample into multiple diverse variations
