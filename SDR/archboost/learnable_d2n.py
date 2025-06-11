@@ -37,6 +37,7 @@ class LearnableD2N(nn.Module):
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(32),
             nn.Conv2d(32, 3, kernel_size=3, padding=1)
+            # nn.Conv2d(3, 3, kernel_size=3, padding=1)
         )
 
     def forward(self, depth: torch.Tensor):
@@ -63,11 +64,11 @@ class LearnableD2N(nn.Module):
         dy = point_map_pad[:, :, 1:, :-1] - point_map_pad[:, :, :-1, :-1]
 
         normals = torch.cross(dx, dy, dim=1)
-        normals = F.normalize(normals, dim=1)
+        normals = F.normalize(normals, dim=1, eps=1e-6)
 
         # Light Learnable Layers 
         refined_normals = self.refine(normals)
-        refined_normals = F.normalize(refined_normals, dim=1)
+        refined_normals = F.normalize(refined_normals, dim=1, eps=1e-6)
 
         return refined_normals
 

@@ -56,7 +56,7 @@ class Depth2Normal(nn.Module):
         dy = point_map_pad[:, :, 1:, :-1] - point_map_pad[:, :, :-1, :-1]
 
         normals = torch.cross(dx, dy, dim=1)
-        normals = F.normalize(normals, dim=1)
+        normals = F.normalize(normals, dim=1, eps=1e-6)
 
         return normals
 
