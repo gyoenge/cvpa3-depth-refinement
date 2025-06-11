@@ -33,7 +33,7 @@ class Baseline(nn.Module):
         depth = self.rgbd2depth(rgbd) # (B, 1, H, W)
 
         # Depth to Normal 
-        point_map, normals = self.depth2normal(depth) # (B, 3, H, W), (B, 3, H, W)
+        normals = self.depth2normal(depth) # (B, 3, H, W), (B, 3, H, W)
         
         return initial_depth, depth, normals # (B, 1, H, W), (B, 3, H, W)
     

@@ -15,7 +15,6 @@ class Depth2Normal(nn.Module):
         depth (torch.Tensor): Depth map of shape (B, 1, H, W)
 
     Output:
-        point_map (torch.Tensor): 3D point map of shape (B, 3, H, W)
         normals (torch.Tensor): Normal map of shape (B, 3, H, W)
     """
 
@@ -50,8 +49,7 @@ class Depth2Normal(nn.Module):
         pix_coords_flat = pix_coords.view(B, 3, -1)                    # (B, 3, H*W)
         K_inv = self.K_inv.repeat(B, 1, 1)
         cam_coords = torch.bmm(K_inv, pix_coords_flat)                # (B, 3, H*W)
-        cam_coords = cam_coords.view(B, 3, H, W) * (-depth)           # (B, 3, H, W)
-        point_map = cam_coords 
+        point_map = cam_coords.view(B, 3, H, W) * (-depth)            # (B, 3, H, W)
 
         # Compute surface normals via cross product
         point_map_pad = F.pad(point_map, (0, 1, 0, 1), mode='replicate')  # (B, 3, H+1, W+1)
@@ -61,5 +59,5 @@ class Depth2Normal(nn.Module):
         normals = torch.cross(dx, dy, dim=1)
         normals = F.normalize(normals, dim=1)
 
-        return point_map, normals
+        return normals
 
