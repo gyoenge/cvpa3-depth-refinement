@@ -1,5 +1,5 @@
 import os
-import glob
+from glob import glob
 import numpy as np
 import torch
 from torch.utils.data import Dataset
@@ -14,7 +14,7 @@ class AugmentedDataset(Dataset):
             data_dir (str): dataset toot directory 
             transform (callable, optional): transformation to be applied on images. Defaults to None.
         """
-        self.sample_dirs = sorted(glob.glob(os.path.join(data_dir, '*/')))
+        self.sample_dirs = sorted(glob(os.path.join(data_dir, '*/')))
         self.transform = transform 
 
     def __len__(self):
