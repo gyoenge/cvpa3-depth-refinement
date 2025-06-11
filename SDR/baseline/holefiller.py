@@ -5,12 +5,12 @@ import torch.nn.functional as F
 
 
 class HoleFiller(nn.Module):
-    def __init__(self, kernel_size=(7, 7), iter=50):
+    def __init__(self, kernel_size=7, iter=50):
         """
         Hole filling module using convolution-based smoothing on sparse depth.
 
         Args:
-            kernel_size (tuple): e.g., (3, 3)
+            kernel_size (int): size of square kernel. e.g., 7 means 7x7 kernel
             iter (int): number of smoothing iterations
         """
         super().__init__()
@@ -18,7 +18,7 @@ class HoleFiller(nn.Module):
         self.iter = iter
 
         # Define convolution kernel (averaging kernel)
-        kernel = torch.ones(1, 1, *kernel_size)
+        kernel = torch.ones(1, 1, kernel_size, kernel_size)
         self.register_buffer('kernel', kernel)
 
     def forward(self, sparse_depth):
@@ -34,8 +34,8 @@ class HoleFiller(nn.Module):
 
         filled = sparse_depth.clone()
         B, _, H, W = filled.shape
-        pad_h = (self.kernel_size[0] - 1) // 2
-        pad_w = (self.kernel_size[1] - 1) // 2
+        pad_h = (self.kernel_size - 1) // 2
+        pad_w = (self.kernel_size - 1) // 2
 
         # for _ in tqdm(range(self.iter), desc="Hole Filling..."):
         for _ in range(self.iter):

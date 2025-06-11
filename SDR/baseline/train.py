@@ -10,7 +10,7 @@ from SDR.utils import *
 def train(
     data_dir='./data/augmentation/',
     save_dir='./output/baseline/',
-    holefilling_kernel_size=(7,7),
+    holefilling_kernel_size=7,
     holefilling_iter=50, 
     batch_size=8,
     epoch=1000, 

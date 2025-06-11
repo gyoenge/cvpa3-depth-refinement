@@ -12,7 +12,7 @@ def inference(
     data_dir='./data/orisample/',
     save_dir='./output/baseline/inference/',
     model_path='./data/model/baseline.pth',
-    holefilling_kernel_size=(7,7),
+    holefilling_kernel_size=7,
     holefilling_iter=50, 
     batch_size=8,
 ): 

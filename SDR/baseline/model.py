@@ -6,7 +6,7 @@ from SDR.baseline.depth2normal import Depth2Normal
 
 class Baseline(nn.Module):
     def __init__(self,
-        holefilling_kernel_size=(7,7),
+        holefilling_kernel_size=7,
         holefilling_iter=50,   
     ):
         super().__init__()

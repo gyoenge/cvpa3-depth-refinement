@@ -3,7 +3,7 @@ from SDR.baseline.train import train as train_baseline
 train_baseline(
     data_dir='./data/aug0.002', #'./data/augmentation/',
     save_dir='./output/baseline/',
-    holefilling_kernel_size=(7,7),
+    holefilling_kernel_size=7,
     holefilling_iter=50, 
     batch_size=8,
     epoch=100, 
