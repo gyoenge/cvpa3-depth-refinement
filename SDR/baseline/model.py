@@ -19,13 +19,7 @@ class Baseline(nn.Module):
             n_classes=1, 
             bilinear=False 
         )
-        self.depth2normal = Depth2Normal(
-            K=torch.tensor([[
-                [5.1885790117450188e+02, 0.0, 3.2558244941119034e+02],
-                [0.0, 5.1946961112127485e+02, 2.5373616633400465e+02],
-                [0.0, 0.0, 1.0]
-            ]], dtype=torch.float32)  # (1, 3, 3)
-        )
+        self.depth2normal = Depth2Normal()
         
     def forward(self,
         rgb, # (B, 3, H, W)
