@@ -9,6 +9,8 @@ archive/
 data/augmentation/
 data/aug*/
 result/
+result_sota/
+submission/
 # excluded data
 data/model/ 
 data/ori_*/
