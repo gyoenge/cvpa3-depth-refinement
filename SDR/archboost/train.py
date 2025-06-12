@@ -87,6 +87,7 @@ def train(
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epoch, eta_min=5e-4)
 
     # train loop 
+    sota_depth_rmse = 100000 
     for epoch in range(1,epoch+1):
         model.train()
         
@@ -168,6 +169,26 @@ def train(
                 save_depth_image(depth_pred_np, os.path.join(save_dir, f"depth_pred_ep{epoch}.png"))
                 save_normal_image(normal_pred_np, os.path.join(save_dir, f"normal_pred_ep{epoch}.png"))
 
+        ## SOTA check 
+        if epoch==1:
+            ## SOTA should predict better than initial depth 
+            # print(f"SOTA setted: {math.sqrt(epoch_mse_initial / num_batches):.4f}")
+            sota_depth_rmse = math.sqrt(epoch_mse_initial / num_batches)
+        if (math.sqrt(epoch_mse_depth / num_batches)) < sota_depth_rmse:
+            sota_depth_rmse = math.sqrt(epoch_mse_depth / num_batches)
+            logging.info(
+                f"[New SOTA]"
+                f"Epoch {epoch}, Depth RMSE {sota_depth_rmse:.4f}"
+            )
+
+            ## save 
+            with torch.no_grad():
+                depth_pred_np = depth[0].squeeze(0).squeeze(0).cpu().numpy()    # (H, W)
+                normal_pred_np = normals[0].squeeze(0).permute(1, 2, 0).cpu().numpy()  # (H, W, 3)
+                save_depth_image(depth_pred_np, os.path.join(save_dir, f"depth_pred_SOTA.png"))
+                save_normal_image(normal_pred_np, os.path.join(save_dir, f"normal_pred_SOTA.png"))
+                np.save(os.path.join(save_dir, "depth_pred_SOTA.npy"), depth_pred_np)
+                torch.save(model.state_dict(), os.path.join(save_dir, f"weight_SOTA.pth")) 
 
     # save results
     with torch.no_grad():
@@ -190,4 +211,8 @@ def train(
         np.save(os.path.join(save_dir, "depth_pred.npy"), depth_pred_np)
         torch.save(model.state_dict(), os.path.join(save_dir, f"weight.pth")) 
     logging.info(f"[END] All results saved into {save_dir}")
+    logging.info(
+                f"[Final SOTA]"
+                f"Depth RMSE {sota_depth_rmse:.4f}"
+            )
 
