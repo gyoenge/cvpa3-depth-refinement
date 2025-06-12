@@ -2,14 +2,14 @@ import torch
 # from torchvision.transforms.functional import gaussian_blur
 from SDR.dataset import load_dataset
 from SDR.baseline.depth2normal import Depth2Normal
-from SDR.archboost.avgpool_d2n import LearnableD2N
+from SDR.archboost.avgpool_d2n import AvgpoolD2N
 from SDR.utils import *
 
 
 def test_d2n(
     data_dir='./data/ori_train/',
     save_dir='./output/baseline/',
-    is_learnable_d2n=False, 
+    is_avgpool_d2n=False, 
 ): 
     batch_size=1
 
@@ -26,8 +26,8 @@ def test_d2n(
     )
 
     # define model 
-    if is_learnable_d2n: 
-        d2n_model = LearnableD2N()
+    if is_avgpool_d2n: 
+        d2n_model = AvgpoolD2N()
     else: 
         d2n_model = Depth2Normal()
     d2n_model = d2n_model.to(device)
