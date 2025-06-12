@@ -4,7 +4,7 @@ from SDR.baseline.holefiller import HoleFiller
 from SDR.baseline.unet import UNet
 from SDR.baseline.depth2normal import Depth2Normal
 from SDR.archboost.smooth_holefiller import SmoothHoleFiller
-from SDR.archboost.learnable_d2n import LearnableD2N
+from SDR.archboost.avgpool_d2n import AvgpoolD2N
 
 
 class ArchBoost(nn.Module):
@@ -33,13 +33,13 @@ class ArchBoost(nn.Module):
             bilinear=False 
         )
         if learnable_d2n:
-            self.depth2normal = LearnableD2N()
+            self.depth2normal = AvgpoolD2N()
         else:
             self.depth2normal = Depth2Normal()
         
     def forward(self,
         rgb, # (B, 3, H, W)
-        sparse_depth # (B, 1, H, W)
+        sparse_depth, # (B, 1, H, W)
     ):
         # Hole filling
         initial_depth = self.holefiller(sparse_depth) # (B, 1, H, W)
@@ -49,7 +49,7 @@ class ArchBoost(nn.Module):
         depth = self.rgbd2depth(rgbd) # (B, 1, H, W)
 
         # Depth to Normal 
-        normals = self.depth2normal(depth) # (B, 3, H, W), (B, 3, H, W)
+        normals = self.depth2normal(depth) # (B, 3, H, W)
         
-        return initial_depth, depth, normals # (B, 1, H, W), (B, 3, H, W)
+        return initial_depth, depth, normals # (B, 1, H, W), (B, 1, H, W), (B, 3, H, W)
     

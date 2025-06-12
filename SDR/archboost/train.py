@@ -1,4 +1,5 @@
 import os 
+import shutil
 import logging
 import math
 import torch 
@@ -15,17 +16,25 @@ def train(
     holefilling_iter=50, 
     batch_size=8,
     epoch=1000, 
-    learning_rate=1e-4,
+    learning_rate=1e-2,
     weight_decay=1e-1,
+    lr_scheduling=True, 
     alpha=1.0,
-    beta=0.8,
+    beta=0.2,
     ## ArchBoost setting
     smooth_initial=True,
     learnable_d2n=True,
     auxiliary_loss=True,
-    lambda_aux=0.1 
+    lambda_aux=0.2, 
+    ## Save setting
+    save_checkpoint=True
 ):     
+    if not auxiliary_loss: 
+        lambda_aux=0.0
+
     # save_dir setting 
+    if os.path.exists(save_dir):
+        shutil.rmtree(save_dir)
     os.makedirs(save_dir, exist_ok=True)
     
     # logger setting 
@@ -38,9 +47,13 @@ def train(
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
     logging.getLogger('').addHandler(console)
-    logging.info(f"[Hyperparameters] holefilling_iter={holefilling_iter}, holefilling_kernel_size={holefilling_kernel_size}, "
-                 f"batch_size={batch_size}, epoch={epoch}, learning_rate={learning_rate}, weight_decay={weight_decay}, "
-                 f"alpha={alpha}, beta={beta}")
+    logging.info(f"[Hole Filling Hyperparameters] "
+                 f"kernel_size=({holefilling_kernel_size}x{holefilling_kernel_size}), iter={holefilling_iter} ")
+    logging.info(f"[Train Hyperparameters] "
+                 f"batch_size={batch_size}, epoch={epoch}, learning_rate={learning_rate}, weight_decay={weight_decay}, lr_scheduling={lr_scheduling}, "
+                 f"alpha={alpha}, beta={beta}, lambda_aux={lambda_aux}")
+    logging.info(f"[ArchBoost Ablations] "
+                 f"smooth_initial={smooth_initial}, learnable_d2n={learnable_d2n}, auxiliary_loss={auxiliary_loss},")
 
     # device setting 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -68,6 +81,11 @@ def train(
         weight_decay=weight_decay
     )
 
+    # define scheduler 
+    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.5)
+    if lr_scheduling: 
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epoch, eta_min=5e-4)
+
     # train loop 
     for epoch in range(1,epoch+1):
         model.train()
@@ -87,12 +105,10 @@ def train(
 
             initial_depth, depth, normals = model(
                 rgb, # (B, 3, H, W)
-                sparse # (B, 1, H, W)
+                sparse,# (B, 1, H, W)
             )
 
             # loss
-            if not auxiliary_loss: 
-                lambda_aux=0.0
             loss_dict = acrhboost_loss(
                 pred_depth=depth,
                 pred_normal=normals,
@@ -118,6 +134,9 @@ def train(
             epoch_mse_depth += mse_depth.item()
             num_batches += 1
 
+        if lr_scheduling: 
+            scheduler.step()
+        
         if auxiliary_loss: 
             logging.info(
                 f"[Epoch {epoch}] "
@@ -137,6 +156,18 @@ def train(
                 f"RMSE Initial: {math.sqrt(epoch_mse_initial / num_batches):.4f}, "
                 f"RMSE Depth: {math.sqrt(epoch_mse_depth / num_batches):.4f}"
             )
+
+        # if lr_scheduling:         
+            # logging.info(f"| lr: {scheduler.get_last_lr()[0]:.6f}")
+
+        ## save checkpoint result 
+        if save_checkpoint and (epoch%500)==0: 
+            with torch.no_grad():
+                depth_pred_np = depth[0].squeeze(0).squeeze(0).cpu().numpy()    # (H, W)
+                normal_pred_np = normals[0].squeeze(0).permute(1, 2, 0).cpu().numpy()  # (H, W, 3)
+                save_depth_image(depth_pred_np, os.path.join(save_dir, f"depth_pred_ep{epoch}.png"))
+                save_normal_image(normal_pred_np, os.path.join(save_dir, f"normal_pred_ep{epoch}.png"))
+
 
     # save results
     with torch.no_grad():
