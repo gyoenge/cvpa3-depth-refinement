@@ -8,7 +8,7 @@ from SDR.utils import *
 
 
 class AugmentedDataset(Dataset):
-    def __init__(self, data_dir, transform=None):
+    def __init__(self, data_dir, has_gt=True, transform=None):
         """
         Args:
             data_dir (str): dataset toot directory 
@@ -16,6 +16,7 @@ class AugmentedDataset(Dataset):
         """
         self.sample_dirs = sorted(glob(os.path.join(data_dir, '*/')))
         self.transform = transform 
+        self.has_gt = has_gt
 
     def __len__(self):
         return len(self.sample_dirs)
@@ -26,26 +27,36 @@ class AugmentedDataset(Dataset):
         # Load data as np.ndarray
         rgb = load_png_as_npy(os.path.join(sample_dir, 'rgb.png'))
         sparse_depth = np.load(os.path.join(sample_dir, 'sparse_depth.npy'))
-        gt = np.load(os.path.join(sample_dir, 'gt.npy'))
+        if self.has_gt: 
+            gt = np.load(os.path.join(sample_dir, 'gt.npy'))
         normal = np.load(os.path.join(sample_dir, 'normal.npy'))
 
         # Convert into torch tensors
         rgb = torch.from_numpy(rgb).permute(2,0,1).float()  # (3,H,W)
         sparse_depth = torch.from_numpy(sparse_depth).unsqueeze(0).float() # (1,H,W)
-        gt = torch.from_numpy(gt).unsqueeze(0).float() # (1,H,W)
+        if self.has_gt: 
+            gt = torch.from_numpy(gt).unsqueeze(0).float() # (1,H,W)
         normal = torch.from_numpy(normal).permute(2,0,1).float() # (3,H,W)
 
-        return {
-            'rgb': rgb,
-            'sparse_depth': sparse_depth,
-            'gt': gt,
-            'normal': normal
-        }
+        if not self.has_gt:
+            return {
+                'rgb': rgb,
+                'sparse_depth': sparse_depth,
+                'normal': normal
+            }
+        else: 
+            return {
+                'rgb': rgb,
+                'sparse_depth': sparse_depth,
+                'gt': gt,
+                'normal': normal
+            }
 
 
 def load_dataset(
     data_dir='./data/augmentation/',
     batch_size=8,
+    has_gt=True, 
 ):
     """
     prepare dataset loader with batch 
@@ -57,7 +68,7 @@ def load_dataset(
     Returns: 
         dataloader (torch.utils.data.DataLoader): prepared dataloader
     """
-    dataset = AugmentedDataset(data_dir)
+    dataset = AugmentedDataset(data_dir, has_gt=has_gt)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     return dataloader
 
