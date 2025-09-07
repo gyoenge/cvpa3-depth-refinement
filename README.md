@@ -15,7 +15,7 @@ The <b>baseline model</b> consists of <b>HoleFiller</b>, <b>UNet</b>, and <b>Dep
 </p>
 
 <p align="justify">
-<b>ArchBoost</b> enhances performance through three structural improvements: (i) <b>Smooth Hole-filling</b>, (ii) <b>Learnable Depth2Normal</b>, and (iii) <b>Auxiliary Depth Loss</b>. On the other hand, <b>DataBoost</b> improves performance with two data-driven approaches: (i) <b>Transfer Learning</b> for robustness, and (ii) <b>Sample Data Augmentation</b>.
+<b>ArchBoost</b> enhances performance through three structural improvements: (i) <b>Smooth Hole-filling</b>, (ii) <b>Average Pooling Depth2Normal</b>, and (iii) <b>Auxiliary Depth Loss</b>. On the other hand, <b>DataBoost</b> improves performance with two data-driven approaches: (i) <b>Transfer Learning</b> for robustness, and (ii) <b>Sample Data Augmentation</b>.
 </p>
 
 <p align="center">
